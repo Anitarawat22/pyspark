@@ -1,0 +1,68 @@
+PYSPARK SESSION
+
+from pyspark.sql import SparkSession
+import getpass
+username = getpass.getuser()
+spark = SparkSession. \
+    builder. \
+    config('spark.ui.port','0'). \
+    config("spark.sql.warehouse.dir", f"/user/itv000173/warehouse"). \
+    enableHiveSupport(). \
+    master('yarn'). \
+    getOrCreate()
+
+SPARK - FOR CHECKING THE SPARKSESSION
+
+
+CREATING A DATA OF WORDS WITH THE LOWER AND UPPER CASE:--
+
+words = ("big","Data","Is","SUPER","Interesting","BIG","data","IS","A","trending","TECHNOLOGY")
+
+APPLIED PARALLELIZE---
+words_rdd = spark.sparkContext.parallelize(words)
+
+CONVERTING THE UPPER CASE INTO THE LOWER 
+words_normalized = words_rdd.map(lambda x:x.lower())
+words_normalized.collect()
+
+['big',
+ 'data',
+ 'is',
+ 'super',
+ 'interesting',
+ 'big',
+ 'data',
+ 'is',
+ 'a',
+ 'trending',
+ 'technology']
+
+mapped_words = words_normalized.map(lambda x:(x,1))
+mapped_words.collect()
+
+
+[('big', 1),
+ ('data', 1),
+ ('is', 1),
+ ('super', 1),
+ ('interesting', 1),
+ ('big', 1),
+ ('data', 1),
+ ('is', 1),
+ ('a', 1),
+ ('trending', 1),
+ ('technology', 1)]
+
+aggregrated_results = mapped_words.reduceByKey(lambda x,y :x+y)
+aggregrated_results.collect()
+
+
+
+[('is', 2),
+ ('super', 1),
+ ('interesting', 1),
+ ('trending', 1),
+ ('technology', 1),
+ ('big', 2),
+ ('data', 2),
+ ('a', 1)]
